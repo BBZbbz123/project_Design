@@ -1,0 +1,66 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 2025/03/06 20:31:18
+// Design Name: 
+// Module Name: instmem
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+module INSTMEM(
+    input  [15:0] Addr,      // 16位地址输入
+    output [15:0] Inst       // 16位指令输出
+);
+
+// 32深度指令存储器（16位宽）
+reg [15:0] Rom [0:31];      // 32个16位存储单元
+
+// 指令初始化（示例指令，需根据实际ISA调整）
+initial begin
+    // 基本算术指令
+    Rom[5'h00] = 16'h2010;  // addi $1, $0, 8    （示例编码）
+    Rom[5'h01] = 16'h340C;  // ori  $2, $0, 12
+    Rom[5'h02] = 16'h2182;  // add  $3, $1, $2
+    
+    // 逻辑运算指令
+    Rom[5'h03] = 16'h4211;  // sub  $4, $2, $1
+    Rom[5'h04] = 16'h2528;  // and  $5, $1, $2
+    Rom[5'h05] = 16'h2630;  // or   $6, $1, $2
+    
+    // 控制指令
+    Rom[5'h06] = 16'hB022;  // bne  $1, $2, 2
+    Rom[5'h07] = 16'hXXXX;  // 未使用
+    Rom[5'h08] = 16'hXXXX;  // 未使用
+    
+    // 跳转指令
+    Rom[5'h09] = 16'hA022;  // beq  $1, $2, 2
+    Rom[5'h0A] = 16'h800D;  // j    0x0D
+    
+    // 存储器访问
+    Rom[5'h0D] = 16'hD20A;  // sw   $2, 10($8)
+    Rom[5'h0E] = 16'hC40A;  // lw   $4, 10($8)
+    
+    // 特殊指令
+    Rom[5'h1A] = 16'hE008;  // jr   $16
+    
+    // 初始化未使用的存储单元
+    for(integer i=16; i<32; i=i+1)
+        Rom[i] = 16'hXXXX;
+end
+
+// 组合逻辑输出（地址按字对齐）
+assign Inst = Rom[Addr[5:1]];  // 忽略地址最低位（16位字对齐）
+
+endmodule
